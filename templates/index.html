@@ -5,38 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MidGame: random chess openings</title>
   <meta name="description" content="Generates a random chess opening and the position it leads to, so a game can start in the middlegame.">
-  <meta name="theme-color" content="#8C1C2F">
+  <meta name="theme-color" content="#6E1423">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #F3ECDC;
-      --surface: #FBF7EC;
-      --ink: #2A1B1E;
-      --muted: #6E5C5F;
-      --line: #DCCFB5;
-      --accent: #8C1C2F;
-      --on-accent: #FBF7EC;
-      --sq-dark: #8C1C2F;
-      --sq-light: #E9DDC3;
-      --focus: #8C1C2F;
+      --bg: #F1E9DC;
+      --surface: #FAF4E7;
+      --ink: #241F1C;
+      --muted: #6A5F5A;
+      --line: #DDCFB0;
+      --accent: #6E1423;
+      --on-accent: #FAF4E7;
+      --sq-dark: #6E1423;
+      --sq-light: #E8DAB9;
+      --focus: #6E1423;
       --ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
       --serif: "Newsreader", Georgia, "Times New Roman", serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #161012;
-        --surface: #211719;
-        --ink: #F3ECDD;
-        --muted: #B5A69A;
-        --line: #3A2B2E;
-        --accent: #B3243B;
-        --on-accent: #FBF7EC;
-        --sq-dark: #8C1C2F;
-        --sq-light: #2E2124;
-        --focus: #E8788B;
+        --bg: #14100F;
+        --surface: #201A18;
+        --ink: #F1E9DC;
+        --muted: #B2A99C;
+        --line: #372E2A;
+        --accent: #9E2436;
+        --on-accent: #F1E9DC;
+        --sq-dark: #6E1423;
+        --sq-light: #2A2220;
+        --focus: #D97283;
       }
     }
 
@@ -118,6 +118,21 @@
       outline: 3px solid var(--focus);
       outline-offset: 2px;
     }
+
+    .langbar { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 10px; }
+    .langbtn {
+      min-height: 34px; padding: 0 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .langbtn[aria-pressed="true"] {
+      background: var(--ink); border-color: var(--ink); color: var(--surface);
+    }
+    .langbtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
     .note { margin: 8px 0 0; color: var(--muted); font-size: 0.9rem; }
     .hint { margin: 0 0 16px; color: var(--muted); font-size: 0.95rem; }
@@ -290,27 +305,34 @@
 <body>
   <div class="strip" aria-hidden="true"></div>
 
+  <div class="page" style="padding-bottom:0;">
+    <div class="langbar" role="group" aria-label="Language / Dil">
+      <button type="button" class="langbtn" id="lang-en" aria-pressed="false">EN</button>
+      <button type="button" class="langbtn" id="lang-tr" aria-pressed="false">TR</button>
+    </div>
+  </div>
+
   <main class="page">
     <header class="intro">
-      <h1>MidGame</h1>
-      <p>Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.</p>
+      <h1 id="brand-title">go2mid.com</h1>
+      <p id="intro-desc">Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.</p>
     </header>
 
     <div class="layout">
       <section class="panel" aria-label="Filters">
         <form id="filters">
           <fieldset>
-            <legend>Position type</legend>
+            <legend id="legend-position">Position type</legend>
             <div class="seg">
-              <label><input type="radio" name="structure" value="any" checked><span>Any</span></label>
-              <label><input type="radio" name="structure" value="open"><span>Open</span></label>
-              <label><input type="radio" name="structure" value="closed"><span>Closed</span></label>
+              <label><input type="radio" name="structure" value="any" checked><span id="seg-any">Any</span></label>
+              <label><input type="radio" name="structure" value="open"><span id="seg-open">Open</span></label>
+              <label><input type="radio" name="structure" value="closed"><span id="seg-closed">Closed</span></label>
             </div>
-            <p class="note">Open: pieces have space and lines are open. Closed: pawns are locked and play is slower.</p>
+            <p class="note" id="note-position">Open: pieces have space and lines are open. Closed: pawns are locked and play is slower.</p>
           </fieldset>
 
           <fieldset>
-            <legend>Advantage</legend>
+            <legend id="legend-advantage">Advantage</legend>
             <p class="adv-readout" id="adv-readout">Any advantage</p>
             <div class="range">
               <div class="range-rail" aria-hidden="true"><div class="range-fill" id="adv-fill"></div></div>
@@ -318,28 +340,135 @@
               <input type="range" id="adv-max" min="-1.5" max="1.5" step="0.1" value="1.5" aria-label="Maximum advantage in pawns">
             </div>
             <div class="range-scale" aria-hidden="true">
-              <span>Black better</span><span>Equal</span><span>White better</span>
+              <span id="scale-black">Black better</span><span id="scale-equal">Equal</span><span id="scale-white">White better</span>
             </div>
-            <p class="note">Engine evaluation in pawns. Positive means White is ahead, negative means Black is ahead. Drag both handles to set a range.</p>
+            <p class="note" id="note-advantage">Engine evaluation in pawns. Positive means White is ahead, negative means Black is ahead. Drag both handles to set a range.</p>
           </fieldset>
 
-          <p class="hint">Leave everything unchanged for a fully random opening.</p>
+          <p class="hint" id="hint-random">Leave everything unchanged for a fully random opening.</p>
           <button type="submit" class="btn btn-primary" id="generate">Generate opening</button>
         </form>
       </section>
 
       <section class="result" id="result" aria-live="polite">
         <div class="empty">
-          <h2>No opening yet</h2>
-          <p>Set your filters, or press Generate opening for a random one.</p>
+          <h2 id="empty-title">No opening yet</h2>
+          <p id="empty-text">Set your filters, or press Generate opening for a random one.</p>
         </div>
       </section>
     </div>
   </main>
 
   <script>
-    const STRUCTURE_LABELS = { open: "Open", semi: "Mixed", closed: "Closed" };
-    const SIDE_LABELS = { white: "White", black: "Black" };
+    const TRANSLATIONS = {
+      en: {
+        intro: "Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.",
+        legendPosition: "Position type",
+        segAny: "Any", segOpen: "Open", segClosed: "Closed",
+        notePosition: "Open: pieces have space and lines are open. Closed: pawns are locked and play is slower.",
+        legendAdvantage: "Advantage",
+        advAny: "Any advantage",
+        advUpTo: (hi) => "Up to " + hi,
+        advOrHigher: (lo) => lo + " or higher",
+        advOrLower: (v) => v + " or lower",
+        advAround: (v) => "Around " + v,
+        advRange: (lo, hi) => lo + " to " + hi,
+        scaleBlack: "Black better", scaleEqual: "Equal", scaleWhite: "White better",
+        noteAdvantage: "Engine evaluation in pawns. Positive means White is ahead, negative means Black is ahead. Drag both handles to set a range.",
+        hintRandom: "Leave everything unchanged for a fully random opening.",
+        generate: "Generate opening", generating: "Generating\u2026",
+        emptyTitle: "No opening yet",
+        emptyText: "Set your filters, or press Generate opening for a random one.",
+        errNoMatchTitle: "No matching opening",
+        errNoMatchText: "No opening fits these filters. Widen the advantage range or change the position type.",
+        errGenericTitle: "Could not load an opening",
+        errGenericText: "Something went wrong. Please try again in a moment.",
+        errNetworkText: "The server could not be reached. Check your connection and try again.",
+        ecoCode: "ECO code", positionType: "Position type", advantage: "Advantage", sideToMove: "Side to move",
+        structureOpen: "Open", structureSemi: "Mixed", structureClosed: "Closed",
+        sideWhite: "White", sideBlack: "Black",
+        equalValue: "Equal (0.0)",
+        movesPlayed: "Moves played",
+        playOnLichessTitle: "Play this position on Lichess",
+        playOnLichessNote: "Creates a game link for two players. Each player opens one link and the game starts from this position.",
+        timeControlLabel: "Time control",
+        groupBullet: "Bullet", groupBlitz: "Blitz", groupRapid: "Rapid", groupClassical: "Classical",
+        noClock: "No clock",
+        createGameLink: "Create game link", creating: "Creating\u2026",
+        err429: "Lichess is busy right now. Wait a minute and try again.",
+        errCreateGeneric: "Could not create the game on Lichess. Try again, or use Copy FEN below to set it up yourself.",
+        errCreateNetwork: "The server could not be reached. Check your connection and try again.",
+        gameReadyTitle: "Your game is ready",
+        gameReadyNote: "Send one link to your opponent and open the other one yourself. The game starts when both players have joined. Unused links may expire, so create them when you are ready to play.",
+        playAs: (side) => "Play as " + side,
+        openLink: "Open", copyLink: "Copy link", copied: "Copied", copyFailed: "Copy failed",
+        createNewLink: "Create a new link",
+        copyFen: "Copy FEN", analyzeOnLichess: "Analyze on Lichess",
+        pickedFrom: (n) => "Picked from " + n + " matching " + (n === 1 ? "opening." : "openings."),
+      },
+      tr: {
+        intro: "Açılışı atlayıp oyun ortasından başlamak isteyenler için tasarlandı.",
+        legendPosition: "Pozisyon türü",
+        segAny: "Rastgele", segOpen: "Açık", segClosed: "Kapalı",
+        notePosition: "Açık: taşların hareket alanı geniş, hatlar açık. Kapalı: piyonlar kilitli, oyun daha yavaş.",
+        legendAdvantage: "Üstünlük",
+        advAny: "Fark etmez",
+        advUpTo: (hi) => hi + " değerine kadar",
+        advOrHigher: (lo) => lo + " ve üzeri",
+        advOrLower: (v) => v + " ve altı",
+        advAround: (v) => v + " civarı",
+        advRange: (lo, hi) => lo + " ile " + hi + " arası",
+        scaleBlack: "Siyah üstün", scaleEqual: "Eşit", scaleWhite: "Beyaz üstün",
+        noteAdvantage: "Oyun ortasına kimin ne kadar üstün gireceğini belirle.",
+        hintRandom: "Tamamen rastgele bir açılış için hiçbir şeyi değiştirme.",
+        generate: "Açılış üret", generating: "Üretiliyor\u2026",
+        emptyTitle: "Henüz açılış yok",
+        emptyText: "Filtreleri seç ya da rastgele biri için Açılış üret'e bas.",
+        errNoMatchTitle: "Uyan açılış yok",
+        errNoMatchText: "Bu filtrelere uyan açılış bulunamadı. Üstünlük aralığını genişlet ya da pozisyon türünü değiştir.",
+        errGenericTitle: "Açılış getirilemedi",
+        errGenericText: "Bir sorun oluştu. Biraz sonra tekrar dene.",
+        errNetworkText: "Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.",
+        ecoCode: "ECO kodu", positionType: "Pozisyon türü", advantage: "Üstünlük", sideToMove: "Hamle sırası",
+        structureOpen: "Açık", structureSemi: "Karışık", structureClosed: "Kapalı",
+        sideWhite: "Beyaz", sideBlack: "Siyah",
+        equalValue: "Eşit (0.0)",
+        movesPlayed: "Oynanan hamleler",
+        playOnLichessTitle: "Bu pozisyonu Lichess'te oyna",
+        playOnLichessNote: "Zamanlamayı seçtikten sonra oynamak istediğin renk için oyunu başlat, rakibin linkini rakip oyuncuya ilet. İki oyuncu da oyuna girdikten sonra maç belirlenen oyun ortasından başlar.",
+        timeControlLabel: "Süre kontrolü",
+        groupBullet: "Bullet", groupBlitz: "Blitz", groupRapid: "Hızlı", groupClassical: "Klasik",
+        noClock: "Süresiz",
+        createGameLink: "Oyun linki oluştur", creating: "Oluşturuluyor\u2026",
+        err429: "Lichess şu anda yoğun. Bir dakika bekleyip tekrar dene.",
+        errCreateGeneric: "Lichess'te oyun oluşturulamadı. Tekrar dene, ya da aşağıdaki FEN'i kopyala kendin kurabilirsin.",
+        errCreateNetwork: "Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.",
+        gameReadyTitle: "Oyunun hazır",
+        gameReadyNote: "Bir linki rakibine gönder, diğerini kendin aç. İkiniz de girince oyun başlar. Kullanılmayan linkler süresi dolabilir, o yüzden oynamaya hazır olduğunda oluştur.",
+        playAs: (side) => side + " olarak oyna",
+        openLink: "Lichess\u0027te oyunu başlat", copyLink: "Rakibin linkini kopyala", copied: "Kopyalandı", copyFailed: "Kopyalanamadı",
+        createNewLink: "Yeni link oluştur",
+        copyFen: "FEN'i kopyala", analyzeOnLichess: "Lichess'te incele",
+        pickedFrom: (n) => "Bu filtrelerle " + n + " açılış arasından seçildi.",
+      },
+    };
+
+    function detectInitialLang() {
+      try {
+        const saved = localStorage.getItem("go2mid-lang");
+        if (saved === "en" || saved === "tr") return saved;
+      } catch (err) { /* ignore */ }
+      return "tr";
+    }
+
+    let lang = detectInitialLang();
+    function t(key) { return TRANSLATIONS[lang][key]; }
+
+    const langEnBtn = document.getElementById("lang-en");
+    const langTrBtn = document.getElementById("lang-tr");
+
+    const STRUCTURE_LABEL_KEYS = { open: "structureOpen", semi: "structureSemi", closed: "structureClosed" };
+    const SIDE_LABEL_KEYS = { white: "sideWhite", black: "sideBlack" };
 
     const ADV_MIN = -1.5;
     const ADV_MAX = 1.5;
@@ -368,13 +497,13 @@
     function describeAdv(lo, hi) {
       const atMin = lo <= ADV_MIN + EPS;
       const atMax = hi >= ADV_MAX - EPS;
-      if (atMin && atMax) return "Any advantage";
-      if (atMin && hi <= ADV_MIN + EPS) return formatAdv(ADV_MIN) + " or lower";
-      if (atMax && lo >= ADV_MAX - EPS) return formatAdv(ADV_MAX) + " or higher";
-      if (atMin) return "Up to " + formatAdv(hi);
-      if (atMax) return formatAdv(lo) + " or higher";
-      if (Math.abs(hi - lo) < EPS) return "Around " + formatAdv(lo);
-      return formatAdv(lo) + " to " + formatAdv(hi);
+      if (atMin && atMax) return t("advAny");
+      if (atMin && hi <= ADV_MIN + EPS) return t("advOrLower")(formatAdv(ADV_MIN));
+      if (atMax && lo >= ADV_MAX - EPS) return t("advOrHigher")(formatAdv(ADV_MAX));
+      if (atMin) return t("advUpTo")(formatAdv(hi));
+      if (atMax) return t("advOrHigher")(formatAdv(lo));
+      if (Math.abs(hi - lo) < EPS) return t("advAround")(formatAdv(lo));
+      return t("advRange")(formatAdv(lo), formatAdv(hi));
     }
 
     // Keeps the two handles in order and refreshes the fill and the text
@@ -412,8 +541,8 @@
     }
 
     function describeOpeningAdvantage(pawns) {
-      if (Math.abs(pawns) < 0.05) return "Equal (0.0)";
-      return (pawns > 0 ? "White " : "Black ") + formatAdv(pawns).replace("\u2212", "+");
+      if (Math.abs(pawns) < 0.05) return t("equalValue");
+      return (pawns > 0 ? t("sideWhite") + " " : t("sideBlack") + " ") + formatAdv(pawns).replace("\u2212", "+");
     }
 
     function showMessage(title, text) {
@@ -423,12 +552,13 @@
       resultBox.append(box);
     }
 
-    const TIME_CONTROLS = [
-      ["10+0", "10 min each"],
-      ["15+10", "15 min + 10 sec per move"],
-      ["5+3", "5 min + 3 sec per move"],
-      ["none", "No clock"],
+    const TIME_CONTROL_GROUPS = [
+      ["groupBullet", ["1+0", "2+1"]],
+      ["groupBlitz", ["3+0", "3+2", "5+0", "5+3"]],
+      ["groupRapid", ["10+0", "10+5", "15+10"]],
+      ["groupClassical", ["30+0", "30+20"]],
     ];
+    const NO_CLOCK_VALUE = "none";
 
     function makeCopyButton(label, text, extraClass) {
       const btn = el("button", "btn btn-secondary" + (extraClass ? " " + extraClass : ""), label);
@@ -456,17 +586,17 @@
     function showGameLinks(box, opening, data) {
       box.replaceChildren();
       box.append(
-        el("h3", "", "Your game is ready"),
-        el("p", "game-note", "Send one link to your opponent and open the other one yourself. The game starts when both players have joined. Unused links may expire, so create them when you are ready to play.")
+        el("h3", "", t("gameReadyTitle")),
+        el("p", "game-note", t("gameReadyNote"))
       );
-      for (const [side, url] of [["White", data.url_white], ["Black", data.url_black]]) {
+      for (const [sideKey, url] of [["sideWhite", data.url_white], ["sideBlack", data.url_black]]) {
         const row = el("div", "game-row");
         const buttons = el("div", "game-buttons");
-        buttons.append(makeLink("Open", url), makeCopyButton("Copy link", url));
-        row.append(el("span", "game-side", "Play as " + side), buttons);
+        buttons.append(makeLink(t("openLink"), url), makeCopyButton(t("copyLink"), url));
+        row.append(el("span", "game-side", t("playAs")(t(sideKey))), buttons);
         box.append(row);
       }
-      const again = el("button", "btn btn-secondary game-again", "Create a new link");
+      const again = el("button", "btn btn-secondary game-again", t("createNewLink"));
       again.type = "button";
       again.addEventListener("click", () => box.replaceWith(buildGameSection(opening)));
       box.append(again);
@@ -475,21 +605,29 @@
     function buildGameSection(opening) {
       const box = el("div", "game");
       box.append(
-        el("h3", "", "Play this position on Lichess"),
-        el("p", "game-note", "Creates a game link for two players. Each player opens one link and the game starts from this position.")
+        el("h3", "", t("playOnLichessTitle")),
+        el("p", "game-note", t("playOnLichessNote"))
       );
 
-      const label = el("label", "field-label", "Time control");
+      const label = el("label", "field-label", t("timeControlLabel"));
       label.htmlFor = "time-control";
       const select = el("select", "select");
       select.id = "time-control";
-      for (const [value, text] of TIME_CONTROLS) {
-        const option = el("option", "", text);
-        option.value = value;
-        select.append(option);
+      for (const [groupKey, values] of TIME_CONTROL_GROUPS) {
+        const group = document.createElement("optgroup");
+        group.label = t(groupKey);
+        for (const value of values) {
+          const option = el("option", "", value);
+          option.value = value;
+          group.append(option);
+        }
+        select.append(group);
       }
+      const noClockOption = el("option", "", t("noClock"));
+      noClockOption.value = NO_CLOCK_VALUE;
+      select.append(noClockOption);
 
-      const createBtn = el("button", "btn btn-primary", "Create game link");
+      const createBtn = el("button", "btn btn-primary", t("createGameLink"));
       createBtn.type = "button";
       const message = el("p", "game-error");
       message.hidden = true;
@@ -497,7 +635,7 @@
       createBtn.addEventListener("click", async () => {
         message.hidden = true;
         createBtn.disabled = true;
-        createBtn.textContent = "Creating\u2026";
+        createBtn.textContent = t("creating");
         try {
           const response = await fetch("/api/create-game", {
             method: "POST",
@@ -505,28 +643,34 @@
             body: JSON.stringify({ opening_id: opening.id, time_control: select.value }),
           });
           if (response.status === 429) {
-            message.textContent = "Lichess is busy right now. Wait a minute and try again.";
+            message.textContent = t("err429");
             message.hidden = false;
           } else if (!response.ok) {
-            message.textContent = "Could not create the game on Lichess. Try again, or use Copy FEN below to set it up yourself.";
+            message.textContent = t("errCreateGeneric");
             message.hidden = false;
           } else {
             showGameLinks(box, opening, await response.json());
             return;
           }
         } catch (err) {
-          message.textContent = "The server could not be reached. Check your connection and try again.";
+          message.textContent = t("errCreateNetwork");
           message.hidden = false;
         }
         createBtn.disabled = false;
-        createBtn.textContent = "Create game link";
+        createBtn.textContent = t("createGameLink");
       });
 
       box.append(label, select, createBtn, message);
       return box;
     }
 
+    let currentOpening = null;
+    let currentPoolSize = null;
+
     function renderOpening(opening, poolSize) {
+      currentOpening = opening;
+      currentPoolSize = poolSize;
+
       const colon = opening.name.indexOf(":");
       const family = colon === -1 ? opening.name : opening.name.slice(0, colon);
       const variation = colon === -1 ? "" : opening.name.slice(colon + 1).trim();
@@ -537,17 +681,17 @@
 
       const details = el("dl", "details");
       const rows = [
-        ["ECO code", opening.eco],
-        ["Position type", STRUCTURE_LABELS[opening.structure] || opening.structure],
-        ["Advantage", describeOpeningAdvantage(opening.advantage_pawns)],
-        ["Side to move", SIDE_LABELS[opening.side_to_move] || opening.side_to_move],
+        [t("ecoCode"), opening.eco],
+        [t("positionType"), t(STRUCTURE_LABEL_KEYS[opening.structure]) || opening.structure],
+        [t("advantage"), describeOpeningAdvantage(opening.advantage_pawns)],
+        [t("sideToMove"), t(SIDE_LABEL_KEYS[opening.side_to_move]) || opening.side_to_move],
       ];
       for (const [label, value] of rows) {
         details.append(el("dt", "", label), el("dd", "", value));
       }
       frag.append(details);
 
-      frag.append(el("p", "moves-title", "Moves played"));
+      frag.append(el("p", "moves-title", t("movesPlayed")));
       const list = el("ol", "moves");
       for (const row of parseMoves(opening.pgn)) {
         const li = el("li");
@@ -560,15 +704,18 @@
 
       const actions = el("div", "actions");
       actions.append(
-        makeCopyButton("Copy FEN", opening.fen),
-        makeLink("Analyze on Lichess", "https://lichess.org/analysis/" + opening.fen.replace(/ /g, "_"))
+        makeCopyButton(t("copyFen"), opening.fen),
+        makeLink(t("analyzeOnLichess"), "https://lichess.org/analysis/" + opening.fen.replace(/ /g, "_"))
       );
       frag.append(actions);
 
-      frag.append(el("p", "pool", "Picked from " + poolSize + " matching " + (poolSize === 1 ? "opening." : "openings.")));
+      frag.append(el("p", "pool", t("pickedFrom")(poolSize)));
 
       resultBox.replaceChildren(frag);
     }
+
+    let lastErrorKeys = null; // [titleKey, textKey] so we can re-render the same message after a language switch
+    let hasResult = false;
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -580,25 +727,76 @@
       });
 
       generateBtn.disabled = true;
-      generateBtn.textContent = "Generating\u2026";
+      generateBtn.textContent = t("generating");
       try {
         const response = await fetch("/api/random-opening?" + params.toString());
         if (response.status === 404) {
-          showMessage("No matching opening", "No opening fits these filters. Widen the advantage range or change the position type.");
+          lastErrorKeys = ["errNoMatchTitle", "errNoMatchText"];
+          showMessage(t("errNoMatchTitle"), t("errNoMatchText"));
+          hasResult = true; currentOpening = null;
         } else if (!response.ok) {
-          showMessage("Could not load an opening", "Something went wrong. Please try again in a moment.");
+          lastErrorKeys = ["errGenericTitle", "errGenericText"];
+          showMessage(t("errGenericTitle"), t("errGenericText"));
+          hasResult = true; currentOpening = null;
         } else {
           const json = await response.json();
+          lastErrorKeys = null;
+          hasResult = true;
           renderOpening(json.opening, json.pool_size);
         }
       } catch (err) {
-        showMessage("Could not load an opening", "The server could not be reached. Check your connection and try again.");
+        lastErrorKeys = ["errGenericTitle", "errNetworkText"];
+        showMessage(t("errGenericTitle"), t("errNetworkText"));
+        hasResult = true; currentOpening = null;
       } finally {
         generateBtn.disabled = false;
-        generateBtn.textContent = "Generate opening";
+        generateBtn.textContent = t("generate");
         resultBox.scrollIntoView({ block: "nearest" });
       }
     });
+
+    // Re-applies every static and dynamic piece of text for the active language, without losing state
+    function applyLanguage() {
+      document.documentElement.lang = lang;
+      langEnBtn.setAttribute("aria-pressed", String(lang === "en"));
+      langTrBtn.setAttribute("aria-pressed", String(lang === "tr"));
+
+      document.getElementById("intro-desc").textContent = t("intro");
+      document.getElementById("legend-position").textContent = t("legendPosition");
+      document.getElementById("seg-any").textContent = t("segAny");
+      document.getElementById("seg-open").textContent = t("segOpen");
+      document.getElementById("seg-closed").textContent = t("segClosed");
+      document.getElementById("note-position").textContent = t("notePosition");
+      document.getElementById("legend-advantage").textContent = t("legendAdvantage");
+      document.getElementById("scale-black").textContent = t("scaleBlack");
+      document.getElementById("scale-equal").textContent = t("scaleEqual");
+      document.getElementById("scale-white").textContent = t("scaleWhite");
+      document.getElementById("note-advantage").textContent = t("noteAdvantage");
+      document.getElementById("hint-random").textContent = t("hintRandom");
+      generateBtn.textContent = t("generate");
+
+      updateAdvUI(null); // refreshes the live "Any advantage" / "X to Y" readout
+
+      if (!hasResult) {
+        document.getElementById("empty-title").textContent = t("emptyTitle");
+        document.getElementById("empty-text").textContent = t("emptyText");
+      } else if (currentOpening) {
+        renderOpening(currentOpening, currentPoolSize);
+      } else if (lastErrorKeys) {
+        showMessage(t(lastErrorKeys[0]), t(lastErrorKeys[1]));
+      }
+    }
+
+    function setLang(next) {
+      lang = next;
+      try { localStorage.setItem("go2mid-lang", lang); } catch (err) { /* ignore */ }
+      applyLanguage();
+    }
+
+    langEnBtn.addEventListener("click", () => setLang("en"));
+    langTrBtn.addEventListener("click", () => setLang("tr"));
+
+    applyLanguage();
   </script>
 </body>
 </html>

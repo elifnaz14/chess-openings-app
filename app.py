@@ -26,11 +26,20 @@ ADV_TOLERANCE = 0.05   # Slider adımı 0,1 olduğu için yarım adım pay bıra
 LICHESS_OPEN_CHALLENGE_URL = "https://lichess.org/api/challenge/open"
 LICHESS_PREFIX = "https://lichess.org/"
 
-# Süre seçenekleri: (başlangıç süresi saniye, hamle başına eklenen saniye). None = saatsiz.
+# Süre seçenekleri: anahtar -> (başlangıç süresi saniye, hamle başına eklenen saniye). None = saatsiz.
+# Lichess'in Bullet / Blitz / Rapid / Classical kategorilerindeki standart süreler.
 TIME_CONTROLS = {
+    "1+0": (60, 0),
+    "2+1": (120, 1),
+    "3+0": (180, 0),
+    "3+2": (180, 2),
+    "5+0": (300, 0),
     "5+3": (300, 3),
     "10+0": (600, 0),
+    "10+5": (600, 5),
     "15+10": (900, 10),
+    "30+0": (1800, 0),
+    "30+20": (1800, 20),
     "none": None,
 }
 
@@ -99,7 +108,7 @@ def create_game():
         "variant": "fromPosition",
         "fen": opening["fen"],
         "rated": "false",
-        "name": ("MidGame: " + opening["name"].split(":")[0])[:50],
+        "name": ("go2mid.com: " + opening["name"].split(":")[0])[:50],
     }
     clock = TIME_CONTROLS[time_key]
     if clock is not None:
@@ -113,7 +122,7 @@ def create_game():
         headers={
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
-            "User-Agent": "MidGame/1.0 (chess opening randomizer)",
+            "User-Agent": "go2mid.com/1.0 (chess opening randomizer)",
         },
     )
 
