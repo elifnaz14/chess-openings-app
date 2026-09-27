@@ -13,8 +13,27 @@
     gtag('config', 'G-8Q97DG7YPD');
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MidGame: random chess openings</title>
-  <meta name="description" content="Generates a random chess opening and the position it leads to, so a game can start in the middlegame.">
+  {% if initial_opening %}
+  <title>{{ initial_opening.name }} — go2mid.com</title>
+  <meta name="description" content="Play from middlegame: {{ initial_opening.name }}. Start directly on Lichess with go2mid.com.">
+  <meta property="og:title" content="{{ initial_opening.name }} — go2mid.com">
+  <meta property="og:description" content="Bypass opening theory! Start playing this position directly on Lichess.">
+  <meta property="og:url" content="https://go2mid.com/?id={{ initial_opening.id }}">
+  {% else %}
+  <title>go2mid.com — random chess openings</title>
+  <meta name="description" content="Generates random chess openings evaluated by Stockfish. Skip opening theory and start directly from the middlegame.">
+  <meta property="og:title" content="go2mid.com — Skip the opening. Start at the middlegame.">
+  <meta property="og:description" content="Random chess middlegames evaluated by Stockfish. Bypass opening memorization and challenge a friend on Lichess in 1 click.">
+  <meta property="og:url" content="https://go2mid.com">
+  {% endif %}
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://go2mid.com/static/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if initial_opening %}{{ initial_opening.name }} — go2mid.com{% else %}go2mid.com — Skip the opening. Start at the middlegame.{% endif %}">
+  <meta name="twitter:description" content="{% if initial_opening %}Bypass opening theory! Start playing this position directly on Lichess.{% else %}Random chess middlegames evaluated by Stockfish. Challenge a friend on Lichess in 1 click.{% endif %}">
+  <meta name="twitter:image" content="https://go2mid.com/static/og-image.png">
   <meta name="theme-color" content="#6E1423">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -502,11 +521,11 @@
     .game-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .game-again { margin-top: 16px; }
 
-    .actions { display: grid; gap: 10px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .pool { margin: 16px 0 0; color: var(--muted); font-size: 0.95rem; }
 
     @media (min-width: 560px) {
-      .actions { grid-template-columns: repeat(2, auto); justify-content: start; }
+      .actions { justify-content: start; }
     }
 
     @media (min-width: 860px) {
@@ -596,6 +615,8 @@
   </main>
 
   <script>
+    const INITIAL_OPENING = {{ initial_opening | tojson | safe if initial_opening else "null" }};
+
     const TRANSLATIONS = {
       en: {
         intro: "Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.",
@@ -650,6 +671,8 @@
         ctrlNext: "Next move",
         ctrlEnd: "Go to end",
         ctrlReplay: "Replay opening",
+        sharePosition: "Share position",
+        shareCopied: "Link copied!",
       },
       tr: {
         intro: "Açılışı atlayıp oyun ortasından başlamak isteyenler için tasarlandı.",
@@ -704,6 +727,8 @@
         ctrlNext: "Sonraki hamle",
         ctrlEnd: "Sona git",
         ctrlReplay: "Yeniden oynat",
+        sharePosition: "Pozisyonu paylaş",
+        shareCopied: "Link kopyalandı!",
       },
     };
 
@@ -815,15 +840,15 @@
     ];
     const NO_CLOCK_VALUE = "none";
 
-    function makeCopyButton(label, text, extraClass) {
+    function makeCopyButton(label, text, extraClass, successLabel) {
       const btn = el("button", "btn btn-secondary" + (extraClass ? " " + extraClass : ""), label);
       btn.type = "button";
       btn.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(text);
-          btn.textContent = "Copied";
+          btn.textContent = successLabel || t("copied");
         } catch (err) {
-          btn.textContent = "Copy failed";
+          btn.textContent = t("copyFailed");
         }
         setTimeout(() => { btn.textContent = label; }, 2000);
       });
@@ -1358,8 +1383,8 @@
       return card;
     }
 
-    let currentOpening = null;
-    let currentPoolSize = null;
+    let currentOpening = INITIAL_OPENING;
+    let currentPoolSize = INITIAL_OPENING ? 1 : null;
     let activeBoardController = null;
 
     function renderOpening(opening, poolSize, preservedPly = 0) {
@@ -1427,8 +1452,10 @@
 
       frag.append(buildGameSection(opening));
 
+      const shareUrl = window.location.origin + "/?id=" + opening.id;
       const actions = el("div", "actions");
       actions.append(
+        makeCopyButton(t("sharePosition"), shareUrl, "btn-share", t("shareCopied")),
         makeCopyButton(t("copyFen"), opening.fen),
         makeLink(t("analyzeOnLichess"), "https://lichess.org/analysis/" + opening.fen.replace(/ /g, "_"))
       );
@@ -1442,7 +1469,7 @@
     }
 
     let lastErrorKeys = null; // [titleKey, textKey] so we can re-render the same message after a language switch
-    let hasResult = false;
+    let hasResult = Boolean(INITIAL_OPENING);
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1469,6 +1496,7 @@
           const json = await response.json();
           lastErrorKeys = null;
           hasResult = true;
+          window.history.pushState({ id: json.opening.id }, "", "?id=" + json.opening.id);
           renderOpening(json.opening, json.pool_size);
         }
       } catch (err) {
@@ -1507,7 +1535,9 @@
       if (!hasResult) {
         document.getElementById("empty-title").textContent = t("emptyTitle");
         document.getElementById("empty-text").textContent = t("emptyText");
+        document.title = (lang === "tr" ? "go2mid.com — rastgele satranç açılışları" : "go2mid.com — random chess openings");
       } else if (currentOpening) {
+        document.title = currentOpening.name + " — go2mid.com";
         const preservedPly = activeBoardController ? activeBoardController.currentPly : 0;
         renderOpening(currentOpening, currentPoolSize, preservedPly);
       } else if (lastErrorKeys) {
@@ -1524,6 +1554,42 @@
 
     langEnBtn.addEventListener("click", () => setLang("en"));
     langTrBtn.addEventListener("click", () => setLang("tr"));
+
+    window.addEventListener("popstate", async () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (id) {
+        if (INITIAL_OPENING && String(INITIAL_OPENING.id) === String(id)) {
+          hasResult = true;
+          document.title = INITIAL_OPENING.name + " — go2mid.com";
+          renderOpening(INITIAL_OPENING, 1);
+          return;
+        }
+        if (currentOpening && String(currentOpening.id) === String(id)) {
+          return;
+        }
+        try {
+          const res = await fetch("/api/opening/" + id);
+          if (res.ok) {
+            const data = await res.json();
+            hasResult = true;
+            document.title = data.opening.name + " — go2mid.com";
+            renderOpening(data.opening, 1);
+          }
+        } catch (e) {
+          // fallback
+        }
+      } else {
+        hasResult = false;
+        currentOpening = null;
+        if (activeBoardController) {
+          activeBoardController.destroy();
+          activeBoardController = null;
+        }
+        document.title = (lang === "tr" ? "go2mid.com — rastgele satranç açılışları" : "go2mid.com — random chess openings");
+        showMessage(t("emptyTitle"), t("emptyText"));
+      }
+    });
 
     applyLanguage();
   </script>

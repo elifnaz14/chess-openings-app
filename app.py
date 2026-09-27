@@ -118,7 +118,28 @@ def read_number(name, default):
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    opening_id = request.args.get("id")
+    initial_opening = None
+    if opening_id:
+        try:
+            oid = int(opening_id)
+            if oid in OPENINGS_BY_ID:
+                raw = dict(OPENINGS_BY_ID[oid])
+                raw.update(get_opening_history(raw))
+                initial_opening = raw
+        except ValueError:
+            pass
+    return render_template("index.html", initial_opening=initial_opening)
+
+
+@app.route("/api/opening/<int:opening_id>")
+def get_opening(opening_id):
+    if opening_id not in OPENINGS_BY_ID:
+        return jsonify(error="Opening not found"), 404
+    raw = dict(OPENINGS_BY_ID[opening_id])
+    raw.update(get_opening_history(raw))
+    return jsonify(opening=raw)
+
 
 
 @app.route("/api/random-opening")
