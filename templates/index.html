@@ -611,9 +611,9 @@
     }
     .odds-summary h3 {
       margin: 0 0 6px;
-      font-size: 1.15rem;
-      font-family: var(--serif);
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-family: var(--ui);
+      font-weight: 700;
     }
     .odds-summary p {
       margin: 0 0 12px;
@@ -724,10 +724,10 @@
 
     <div class="nav-tabs" role="tablist" aria-label="Game mode">
       <button type="button" class="tab-btn active" id="tab-btn-openings" role="tab" aria-selected="true" aria-controls="section-openings">
-        🎲 <span id="label-tab-openings">Random Openings</span>
+        <span id="label-tab-openings">Random Openings</span>
       </button>
       <button type="button" class="tab-btn" id="tab-btn-odds" role="tab" aria-selected="false" aria-controls="section-odds">
-        ⚔️ <span id="label-tab-odds">Piece Odds</span>
+        <span id="label-tab-odds">Piece Odds</span>
       </button>
     </div>
 
@@ -778,8 +778,8 @@
         <div class="odds-panel-content">
           <p class="odds-intro" id="odds-intro">Click on any piece on the board to eliminate it, or click "Balanced Random" to start from a 0.00 balanced position without opening memorization.</p>
           <div class="odds-actions">
-            <button type="button" class="btn btn-primary" id="btn-balanced-random">🎲 <span id="label-balanced-random">Balanced Random</span></button>
-            <button type="button" class="btn btn-secondary" id="btn-reset-odds">🔄 <span id="label-reset-odds">Reset Board</span></button>
+            <button type="button" class="btn btn-primary" id="btn-balanced-random"><span id="label-balanced-random">Balanced Random</span></button>
+            <button type="button" class="btn btn-secondary" id="btn-reset-odds"><span id="label-reset-odds">Reset Board</span></button>
           </div>
           <div class="odds-summary" id="odds-summary">
             <h3 id="odds-summary-title">Standard Board</h3>
@@ -813,6 +813,7 @@
     const TRANSLATIONS = {
       en: {
         intro: "Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.",
+        introOdds: "Remove pieces from the board and start the game without them.",
         legendPosition: "Position type",
         segAny: "Any", segOpen: "Open", segClosed: "Closed",
         notePosition: "Open: pieces have space and lines are open. Closed: pawns are locked and play is slower.",
@@ -886,6 +887,7 @@
       },
       tr: {
         intro: "Açılışı atlayıp oyun ortasından başlamak isteyenler için tasarlandı.",
+        introOdds: "Taşları eksilt ve onlar olmadan oyuna başla.",
         legendPosition: "Pozisyon türü",
         segAny: "Rastgele", segOpen: "Açık", segClosed: "Kapalı",
         notePosition: "Açık: taşların hareket alanı geniş, hatlar açık. Kapalı: piyonlar kilitli, oyun daha yavaş.",
@@ -2174,6 +2176,11 @@
       sectionOpenings.style.display = isOdds ? "none" : "";
       sectionOdds.style.display = isOdds ? "" : "none";
 
+      const introDescEl = document.getElementById("intro-desc");
+      if (introDescEl) {
+        introDescEl.textContent = isOdds ? t("introOdds") : t("intro");
+      }
+
       const url = new URL(window.location.href);
       if (isOdds) {
         url.searchParams.set("mode", "odds");
@@ -2218,7 +2225,7 @@
       langEnBtn.setAttribute("aria-pressed", String(lang === "en"));
       langTrBtn.setAttribute("aria-pressed", String(lang === "tr"));
 
-      document.getElementById("intro-desc").textContent = t("intro");
+      document.getElementById("intro-desc").textContent = (currentTab === "odds") ? t("introOdds") : t("intro");
       document.getElementById("legend-position").textContent = t("legendPosition");
       document.getElementById("seg-any").textContent = t("segAny");
       document.getElementById("seg-open").textContent = t("segOpen");
