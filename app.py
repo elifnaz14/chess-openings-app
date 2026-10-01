@@ -129,7 +129,14 @@ def home():
                 initial_opening = raw
         except ValueError:
             pass
-    return render_template("index.html", initial_opening=initial_opening)
+    initial_mode = request.args.get("mode")
+    initial_fen = request.args.get("fen")
+    return render_template(
+        "index.html",
+        initial_opening=initial_opening,
+        initial_mode=initial_mode,
+        initial_fen=initial_fen,
+    )
 
 
 @app.route("/api/opening/<int:opening_id>")
@@ -177,22 +184,38 @@ def random_opening():
 
 @app.route("/api/create-game", methods=["POST"])
 def create_game():
-    """Seçilen açılış pozisyonundan Lichess'te iki kişilik açık bir oyun oluşturur."""
+    """Seçilen açılış veya özel FEN pozisyonundan Lichess'te iki kişilik açık bir oyun oluşturur."""
     payload = request.get_json(silent=True) or {}
-    opening = OPENINGS_BY_ID.get(payload.get("opening_id"))
+    opening_id = payload.get("opening_id")
+    custom_fen = payload.get("fen")
     time_key = payload.get("time_control", "10+0")
 
-    if opening is None:
-        return jsonify(error="Unknown opening"), 400
     if time_key not in TIME_CONTROLS:
         return jsonify(error="Unknown time control"), 400
 
-    # Pozisyonu istemciden değil kendi verimizden alıyoruz
+    fen = None
+    game_name = "go2mid.com game"
+    if opening_id is not None:
+        opening = OPENINGS_BY_ID.get(opening_id)
+        if opening is None:
+            return jsonify(error="Unknown opening"), 400
+        fen = opening["fen"]
+        game_name = ("go2mid.com: " + opening["name"].split(":")[0])[:50]
+    elif custom_fen:
+        try:
+            b = chess.Board(custom_fen)
+            fen = b.fen()
+            game_name = "go2mid.com: Piece Odds"
+        except (ValueError, AssertionError):
+            return jsonify(error="Invalid FEN"), 400
+    else:
+        return jsonify(error="Missing opening_id or fen"), 400
+
     form = {
         "variant": "fromPosition",
-        "fen": opening["fen"],
+        "fen": fen,
         "rated": "false",
-        "name": ("go2mid.com: " + opening["name"].split(":")[0])[:50],
+        "name": game_name,
     }
     clock = TIME_CONTROLS[time_key]
     if clock is not None:

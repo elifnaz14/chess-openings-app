@@ -19,6 +19,12 @@
   <meta property="og:title" content="{{ initial_opening.name }} — go2mid.com">
   <meta property="og:description" content="Bypass opening theory! Start playing this position directly on Lichess.">
   <meta property="og:url" content="https://go2mid.com/?id={{ initial_opening.id }}">
+  {% elif initial_mode == 'odds' %}
+  <title>Piece Odds / Taş Eksiltme — go2mid.com</title>
+  <meta name="description" content="Start from balanced piece odds and custom handicap chess positions on Lichess with go2mid.com.">
+  <meta property="og:title" content="Piece Odds / Taş Eksiltme — go2mid.com">
+  <meta property="og:description" content="Balanced piece odds and custom handicap chess! Challenge a friend on Lichess in 1 click.">
+  <meta property="og:url" content="https://go2mid.com/?mode=odds">
   {% else %}
   <title>go2mid.com — random chess openings</title>
   <meta name="description" content="Generates random chess openings evaluated by Stockfish. Skip opening theory and start directly from the middlegame.">
@@ -31,8 +37,8 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{% if initial_opening %}{{ initial_opening.name }} — go2mid.com{% else %}go2mid.com — Skip the opening. Start at the middlegame.{% endif %}">
-  <meta name="twitter:description" content="{% if initial_opening %}Bypass opening theory! Start playing this position directly on Lichess.{% else %}Random chess middlegames evaluated by Stockfish. Challenge a friend on Lichess in 1 click.{% endif %}">
+  <meta name="twitter:title" content="{% if initial_opening %}{{ initial_opening.name }} — go2mid.com{% elif initial_mode == 'odds' %}Piece Odds / Taş Eksiltme — go2mid.com{% else %}go2mid.com — Skip the opening. Start at the middlegame.{% endif %}">
+  <meta name="twitter:description" content="{% if initial_opening %}Bypass opening theory! Start playing this position directly on Lichess.{% elif initial_mode == 'odds' %}Balanced piece odds and custom handicap chess! Challenge a friend on Lichess in 1 click.{% else %}Random chess middlegames evaluated by Stockfish. Challenge a friend on Lichess in 1 click.{% endif %}">
   <meta name="twitter:image" content="https://go2mid.com/static/og-image.png">
   <meta name="theme-color" content="#6E1423">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
@@ -538,6 +544,149 @@
     @media (prefers-reduced-motion: no-preference) {
       .btn { transition: opacity 0.15s; }
     }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin: 24px 0 0;
+      padding: 0 0 14px;
+      border-bottom: 1.5px solid var(--line);
+    }
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      border-color: var(--accent);
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+    }
+    .tab-btn:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Odds Layout & Panel */
+    .odds-panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .odds-intro {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .odds-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .odds-actions .btn {
+      width: 100%;
+      gap: 8px;
+    }
+    .odds-summary {
+      padding: 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+    .odds-summary h3 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+      font-family: var(--serif);
+      font-weight: 600;
+    }
+    .odds-summary p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .odds-balance-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+    .odds-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(110, 20, 35, 0.12);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .odds-points {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    /* Interactive Odds Board */
+    .odds-board-header {
+      margin-bottom: 20px;
+    }
+    .interactive-board .sq {
+      cursor: pointer;
+    }
+    .interactive-board .piece-node {
+      cursor: pointer;
+      transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+    .interactive-board .piece-node .piece-svg {
+      transition: transform 0.15s ease;
+    }
+    .interactive-board .piece-node:hover .piece-svg {
+      transform: scale(1.12);
+    }
+    .interactive-board .piece-eliminated {
+      opacity: 0.20;
+      filter: grayscale(100%);
+    }
+    .interactive-board .piece-eliminated:hover {
+      opacity: 0.55;
+      filter: grayscale(40%);
+    }
+
+    .odds-toast {
+      margin: 14px 0 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: fadeInToast 0.2s ease;
+    }
+    @keyframes fadeInToast {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -573,7 +722,17 @@
       <p id="intro-desc">Generates a random chess opening and the position it leads to, so a game can start in the middlegame instead of at move one. Filter by position type (open or closed) and by evaluated advantage.</p>
     </header>
 
-    <div class="layout">
+    <div class="nav-tabs" role="tablist" aria-label="Game mode">
+      <button type="button" class="tab-btn active" id="tab-btn-openings" role="tab" aria-selected="true" aria-controls="section-openings">
+        🎲 <span id="label-tab-openings">Random Openings</span>
+      </button>
+      <button type="button" class="tab-btn" id="tab-btn-odds" role="tab" aria-selected="false" aria-controls="section-odds">
+        ⚔️ <span id="label-tab-odds">Piece Odds</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: Random Openings -->
+    <div class="layout" id="section-openings">
       <section class="panel" aria-label="Filters">
         <form id="filters">
           <fieldset>
@@ -612,10 +771,44 @@
         </div>
       </section>
     </div>
+
+    <!-- TAB 2: Piece Odds (Taş Eksiltme) -->
+    <div class="layout" id="section-odds" style="display:none;">
+      <section class="panel" aria-label="Piece odds controls">
+        <div class="odds-panel-content">
+          <p class="odds-intro" id="odds-intro">Click on any piece on the board to eliminate it, or click "Balanced Random" to start from a 0.00 balanced position without opening memorization.</p>
+          <div class="odds-actions">
+            <button type="button" class="btn btn-primary" id="btn-balanced-random">🎲 <span id="label-balanced-random">Balanced Random</span></button>
+            <button type="button" class="btn btn-secondary" id="btn-reset-odds">🔄 <span id="label-reset-odds">Reset Board</span></button>
+          </div>
+          <div class="odds-summary" id="odds-summary">
+            <h3 id="odds-summary-title">Standard Board</h3>
+            <p id="odds-summary-desc">No pieces removed yet. Click any piece on the board to eliminate it.</p>
+            <div class="odds-balance-row">
+              <span class="odds-badge" id="odds-badge-status">Balanced (0.00)</span>
+              <span class="odds-points" id="odds-points-detail">White: -0 pts | Black: -0 pts</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="result" id="odds-result" aria-live="polite">
+        <div class="odds-board-header">
+          <h2 class="opening-family" id="odds-board-title">Piece Odds</h2>
+          <p class="opening-variation" id="odds-board-sub">Click pieces to eliminate, or click Balanced Random</p>
+        </div>
+        <div class="odds-board-container" id="odds-board-container"></div>
+        <div id="odds-toast" class="odds-toast" role="alert" style="display:none;"></div>
+        <div id="odds-game-section" class="game-section-container"></div>
+        <div id="odds-actions-bar" class="actions"></div>
+      </section>
+    </div>
   </main>
 
   <script>
     const INITIAL_OPENING = {{ initial_opening | tojson | safe if initial_opening else "null" }};
+    const INITIAL_MODE = {{ initial_mode | tojson | safe if initial_mode else "null" }};
+    const INITIAL_FEN = {{ initial_fen | tojson | safe if initial_fen else "null" }};
 
     const TRANSLATIONS = {
       en: {
@@ -673,6 +866,23 @@
         ctrlReplay: "Replay opening",
         sharePosition: "Share position",
         shareCopied: "Link copied!",
+        tabOpenings: "Random Openings",
+        tabOdds: "Piece Odds",
+        oddsIntro: "Click on any piece on the board to eliminate it, or click 'Balanced Random' to start from a 0.00 balanced position without opening memorization.",
+        btnBalancedRandom: "Balanced Random",
+        btnResetOdds: "Reset Board",
+        oddsStandardTitle: "Standard Board",
+        oddsStandardDesc: "No pieces removed yet. Click any piece on the board to eliminate it.",
+        oddsCustomTitle: "Custom Odds Position",
+        oddsCustomDesc: "Custom piece handicap. Play directly on Lichess.",
+        cannotRemoveKing: "Kings cannot be removed according to chess rules.",
+        oddsWhitePoints: (pts) => "White: -" + pts + " pts",
+        oddsBlackPoints: (pts) => "Black: -" + pts + " pts",
+        oddsDiffEqual: "Balanced (0.00)",
+        oddsDiffWhite: (d) => "White +" + d + " pt advantage",
+        oddsDiffBlack: (d) => "Black +" + d + " pt advantage",
+        oddsBoardTitle: "Piece Odds Mode",
+        oddsBoardSub: "Click pieces to eliminate, or click Balanced Random",
       },
       tr: {
         intro: "Açılışı atlayıp oyun ortasından başlamak isteyenler için tasarlandı.",
@@ -729,6 +939,23 @@
         ctrlReplay: "Yeniden oynat",
         sharePosition: "Pozisyonu paylaş",
         shareCopied: "Link kopyalandı!",
+        tabOpenings: "Rastgele Açılışlar",
+        tabOdds: "Taş Eksiltme",
+        oddsIntro: "Başlangıç tahtasından istediğin taşlara tıklayarak onları oyundan çıkarabilir veya 'Dengeli Rastgele' butonuyla tam 0.00 dengeli bir başlangıç konumu oluşturabilirsin.",
+        btnBalancedRandom: "Dengeli Rastgele",
+        btnResetOdds: "Tahtayı Sıfırla",
+        oddsStandardTitle: "Standart Başlangıç",
+        oddsStandardDesc: "Henüz hiçbir taş çıkarılmadı. Tahtadaki taşlara tıklayarak çıkarabilirsin.",
+        oddsCustomTitle: "Özel Taş Eksiltme Konumu",
+        oddsCustomDesc: "Özel belirlenmiş handikap. Doğrudan Lichess'te oyna.",
+        cannotRemoveKing: "Şahlar satranç kuralları gereği oyundan çıkarılamaz.",
+        oddsWhitePoints: (pts) => "Beyaz: -" + pts + " puan",
+        oddsBlackPoints: (pts) => "Siyah: -" + pts + " puan",
+        oddsDiffEqual: "Dengeli (0.00)",
+        oddsDiffWhite: (d) => "Beyaz +" + d + " puan avantajlı",
+        oddsDiffBlack: (d) => "Siyah +" + d + " puan avantajlı",
+        oddsBoardTitle: "Taş Eksiltme Modu",
+        oddsBoardSub: "Tıklayarak taşları çıkar veya Dengeli Rastgele'ye bas",
       },
     };
 
@@ -863,7 +1090,7 @@
       return link;
     }
 
-    function showGameLinks(box, opening, data) {
+    function showGameLinks(box, target, data) {
       box.replaceChildren();
       box.append(
         el("h3", "", t("gameReadyTitle")),
@@ -878,11 +1105,11 @@
       }
       const again = el("button", "btn btn-secondary game-again", t("createNewLink"));
       again.type = "button";
-      again.addEventListener("click", () => box.replaceWith(buildGameSection(opening)));
+      again.addEventListener("click", () => box.replaceWith(buildGameSection(target)));
       box.append(again);
     }
 
-    function buildGameSection(opening) {
+    function buildGameSection(target) {
       const box = el("div", "game");
       box.append(
         el("h3", "", t("playOnLichessTitle")),
@@ -916,11 +1143,14 @@
         message.hidden = true;
         createBtn.disabled = true;
         createBtn.textContent = t("creating");
+        const bodyPayload = (target && target.id)
+          ? { opening_id: target.id, time_control: select.value }
+          : { fen: target.fen, time_control: select.value };
         try {
           const response = await fetch("/api/create-game", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ opening_id: opening.id, time_control: select.value }),
+            body: JSON.stringify(bodyPayload),
           });
           if (response.status === 429) {
             message.textContent = t("err429");
@@ -929,7 +1159,7 @@
             message.textContent = t("errCreateGeneric");
             message.hidden = false;
           } else {
-            showGameLinks(box, opening, await response.json());
+            showGameLinks(box, target, await response.json());
             return;
           }
         } catch (err) {
@@ -1510,6 +1740,478 @@
       }
     });
 
+    /* --- PIECE ODDS (TAŞ EKSİLTME) LOGIC --- */
+    const STARTING_PIECES = {
+      a1: "R", b1: "N", c1: "B", d1: "Q", e1: "K", f1: "B", g1: "N", h1: "R",
+      a2: "P", b2: "P", c2: "P", d2: "P", e2: "P", f2: "P", g2: "P", h2: "P",
+      a7: "p", b7: "p", c7: "p", d7: "p", e7: "p", f7: "p", g7: "p", h7: "p",
+      a8: "r", b8: "n", c8: "b", d8: "q", e8: "k", f8: "b", g8: "n", h8: "r",
+    };
+    const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
+
+    const BALANCED_ODDS_POOL = [
+      {
+        name_tr: "Vezirsiz Karşılaşma (Queenless)",
+        name_en: "Queenless Duel",
+        desc_tr: "Her iki taraf da vezirsiz başlar. Doğrudan ağır taş ve son oyun stratejisi.",
+        desc_en: "Both sides start without queens. Pure heavy piece and endgame strategy.",
+        white: ["d1"],
+        black: ["d8"],
+        eval: "+0.16"
+      },
+      {
+        name_tr: "Vezir Kanadı Kaleleri",
+        name_en: "Queenside Rooks",
+        desc_tr: "a1 ve a8 kaleleri yok. a-hattı 1. hamleden itibaren açıktır.",
+        desc_en: "a1 and a8 rooks absent. The a-file is immediately open.",
+        white: ["a1"],
+        black: ["a8"],
+        eval: "+0.22"
+      },
+      {
+        name_tr: "Şah Kanadı Kaleleri",
+        name_en: "Kingside Rooks",
+        desc_tr: "h1 ve h8 kaleleri yok. Şah kanadında erken manevralar.",
+        desc_en: "h1 and h8 rooks absent. Early kingside flank pressure.",
+        white: ["h1"],
+        black: ["h8"],
+        eval: "+0.21"
+      },
+      {
+        name_tr: "Kalesiz Satranç (Rookless)",
+        name_en: "Rookless Chess",
+        desc_tr: "Dört kale de oyunda yok. Minör taşlar ve piyon yapısı maçı belirler.",
+        desc_en: "All four rooks removed. Minor pieces and pawn structure decide the game.",
+        white: ["a1", "h1"],
+        black: ["a8", "h8"],
+        eval: "+0.07"
+      },
+      {
+        name_tr: "Şah Kanadı Atları",
+        name_en: "Kingside Knights",
+        desc_tr: "g1 ve g8 atları yok. Şah kanadı hafif taş dengesi.",
+        desc_en: "g1 and g8 knights absent. Kingside flank piece balance.",
+        white: ["g1"],
+        black: ["g8"],
+        eval: "+0.21"
+      },
+      {
+        name_tr: "Atsız Satranç (Knightless)",
+        name_en: "Knightless Chess",
+        desc_tr: "Tüm atlar oyun dışı. Fillerin ve açık hatların savaşı.",
+        desc_en: "All knights removed. Long diagonals and open bishop play.",
+        white: ["b1", "g1"],
+        black: ["b8", "g8"],
+        eval: "+0.20"
+      },
+      {
+        name_tr: "Siyah Kare Filleri",
+        name_en: "Dark-Square Bishops",
+        desc_tr: "c1 ve c8 filleri yok. Siyah kareler zayıf, stratejik denge.",
+        desc_en: "c1 and c8 bishops absent. Dynamic dark-square play.",
+        white: ["c1"],
+        black: ["c8"],
+        eval: "+0.08"
+      },
+      {
+        name_tr: "Beyaz Kare Filleri",
+        name_en: "Light-Square Bishops",
+        desc_tr: "f1 ve f8 filleri yok.",
+        desc_en: "f1 and f8 bishops absent.",
+        white: ["f1"],
+        black: ["f8"],
+        eval: "+0.16"
+      },
+      {
+        name_tr: "Filsiz Satranç (Bishopless)",
+        name_en: "Bishopless Chess",
+        desc_tr: "Tüm filler oyun dışı. Atların manevra ve çatal savaşı.",
+        desc_en: "All bishops removed. Knight outposts and maneuvering duel.",
+        white: ["c1", "f1"],
+        black: ["c8", "f8"],
+        eval: "+0.10"
+      },
+      {
+        name_tr: "Ağır Taşsız Düello",
+        name_en: "No Heavy Pieces",
+        desc_tr: "Vezirler ve tüm kaleler yok. 1. hamleden itibaren saf minör taş ustalık maçı.",
+        desc_en: "No queens and no rooks. Pure minor piece masterclass from move 1.",
+        white: ["d1", "a1", "h1"],
+        black: ["d8", "a8", "h8"],
+        eval: "+0.03"
+      },
+      {
+        name_tr: "Vezir ve Kaleler",
+        name_en: "Queens & Queenside Rooks",
+        desc_tr: "Vezirler ve a1/a8 kaleleri yok.",
+        desc_en: "No queens and no queenside rooks.",
+        white: ["d1", "a1"],
+        black: ["d8", "a8"],
+        eval: "+0.11"
+      },
+      {
+        name_tr: "Vezir ve Şah Kanadı Atı",
+        name_en: "Queen & Kingside Knight",
+        desc_tr: "Vezirler ve g1/g8 atları yok.",
+        desc_en: "No queens and no kingside knights.",
+        white: ["d1", "g1"],
+        black: ["d8", "g8"],
+        eval: "+0.28"
+      },
+      {
+        name_tr: "Vezir ve Siyah Kare Fil",
+        name_en: "Queen & Dark-Square Bishop",
+        desc_tr: "Vezirler ve c1/c8 filleri yok.",
+        desc_en: "No queens and no dark-square bishops.",
+        white: ["d1", "c1"],
+        black: ["d8", "c8"],
+        eval: "+0.07"
+      },
+      {
+        name_tr: "Kale ve Fil Çifti",
+        name_en: "Rook & Bishop Trade",
+        desc_tr: "a1, c1 kaleleri ve filleri karşılıklı yok.",
+        desc_en: "a1, c1 rooks and bishops absent on both sides.",
+        white: ["a1", "c1"],
+        black: ["a8", "c8"],
+        eval: "+0.03"
+      },
+      {
+        name_tr: "Kale ve At Çifti",
+        name_en: "Rook & Knight Trade",
+        desc_tr: "h1, g1 kale ve atları karşılıklı yok.",
+        desc_en: "h1, g1 rooks and knights absent on both sides.",
+        white: ["h1", "g1"],
+        black: ["h8", "g8"],
+        eval: "+0.17"
+      },
+      {
+        name_tr: "At ve Fil Çiftleri",
+        name_en: "One Knight & One Bishop Each",
+        desc_tr: "Her iki tarafta da 1 at ve 1 fil eksik.",
+        desc_en: "One knight and one bishop removed from each side.",
+        white: ["b1", "c1"],
+        black: ["b8", "c8"],
+        eval: "+0.21"
+      },
+      {
+        name_tr: "c ve e Piyonları",
+        name_en: "c & e Pawns",
+        desc_tr: "c ve e piyonları karşılıklı yok. Açık merkez ve hatlar.",
+        desc_en: "c & e pawns removed. Immediate open center dynamics.",
+        white: ["c2", "e2"],
+        black: ["c7", "e7"],
+        eval: "+0.14"
+      },
+      {
+        name_tr: "b ve c Piyonları",
+        name_en: "b & c Pawns",
+        desc_tr: "Vezir kanadı piyonları karşılıklı yok.",
+        desc_en: "Queenside flank pawns removed on both sides.",
+        white: ["b2", "c2"],
+        black: ["b7", "c7"],
+        eval: "+0.18"
+      },
+      {
+        name_tr: "Asimetrik: Beyaz Kale vs Siyah At + 2 Piyon",
+        name_en: "Asymmetric: White Rook vs Black Knight + 2 Pawns",
+        desc_tr: "Beyaz a1 kalesini verir (-5), Siyah b8 atını ve a7, b7 piyonlarını verir (-5). Tam eşitlik!",
+        desc_en: "White gives a1 rook (-5), Black gives b8 knight and a7, b7 pawns (-5). Dead equal!",
+        white: ["a1"],
+        black: ["b8", "a7", "b7"],
+        eval: "0.00"
+      }
+    ];
+
+    function generateOddsFen(eliminatedSquares) {
+      const ranks = [];
+      for (let r = 8; r >= 1; r--) {
+        let emptyCount = 0;
+        let rankStr = "";
+        for (let c = 0; c < 8; c++) {
+          const sq = String.fromCharCode(97 + c) + r;
+          const piece = STARTING_PIECES[sq];
+          if (piece && !eliminatedSquares.has(sq)) {
+            if (emptyCount > 0) {
+              rankStr += emptyCount;
+              emptyCount = 0;
+            }
+            rankStr += piece;
+          } else {
+            emptyCount++;
+          }
+        }
+        if (emptyCount > 0) rankStr += emptyCount;
+        ranks.push(rankStr);
+      }
+      const placement = ranks.join("/");
+      let castling = "";
+      if (!eliminatedSquares.has("e1")) {
+        if (!eliminatedSquares.has("h1") && STARTING_PIECES["h1"] === "R") castling += "K";
+        if (!eliminatedSquares.has("a1") && STARTING_PIECES["a1"] === "R") castling += "Q";
+      }
+      if (!eliminatedSquares.has("e8")) {
+        if (!eliminatedSquares.has("h8") && STARTING_PIECES["h8"] === "r") castling += "k";
+        if (!eliminatedSquares.has("a8") && STARTING_PIECES["a8"] === "r") castling += "q";
+      }
+      if (!castling) castling = "-";
+      return `${placement} w ${castling} - 0 1`;
+    }
+
+    let toastTimer = null;
+    function showOddsToast(msg) {
+      const toast = document.getElementById("odds-toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.style.display = "block";
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.style.display = "none";
+      }, 2500);
+    }
+
+    class OddsBoardController {
+      constructor(containerEl) {
+        this.container = containerEl;
+        this.eliminatedSquares = new Set();
+        this.pieceNodes = {};
+        this.activeScenario = null;
+        this.currentFen = generateOddsFen(this.eliminatedSquares);
+
+        this.titleEl = document.getElementById("odds-summary-title");
+        this.descEl = document.getElementById("odds-summary-desc");
+        this.badgeEl = document.getElementById("odds-badge-status");
+        this.pointsEl = document.getElementById("odds-points-detail");
+        this.gameBoxEl = document.getElementById("odds-game-section");
+        this.actionsEl = document.getElementById("odds-actions-bar");
+
+        this.buildBoard();
+        this.updateState();
+      }
+
+      buildBoard() {
+        this.container.replaceChildren();
+        const card = el("div", "board-card interactive-board");
+        const wrapper = el("div", "board-wrapper");
+        const grid = el("div", "board-grid");
+        const pieces = el("div", "board-pieces");
+        wrapper.append(grid, pieces);
+        card.append(wrapper);
+        this.container.append(card);
+
+        for (let r = 0; r < 8; r++) {
+          const rank = 8 - r;
+          for (let c = 0; c < 8; c++) {
+            const file = String.fromCharCode(97 + c);
+            const sqName = file + rank;
+            const isLight = (r + c) % 2 === 0;
+            const sqEl = el("div", "sq " + (isLight ? "sq-light" : "sq-dark"));
+            sqEl.dataset.square = sqName;
+            if (c === 0) sqEl.appendChild(el("span", "coord-rank", String(rank)));
+            if (r === 7) sqEl.appendChild(el("span", "coord-file", file));
+
+            sqEl.addEventListener("click", () => this.handleSquareClick(sqName));
+            grid.appendChild(sqEl);
+          }
+        }
+
+        this.pieceNodes = {};
+        for (const [sq, pieceSymbol] of Object.entries(STARTING_PIECES)) {
+          const node = createPieceElement(pieceSymbol, sq);
+          node.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.handleSquareClick(sq);
+          });
+          pieces.appendChild(node);
+          this.pieceNodes[sq] = node;
+        }
+      }
+
+      handleSquareClick(sq) {
+        if (sq === "e1" || sq === "e8") {
+          showOddsToast(t("cannotRemoveKing"));
+          return;
+        }
+        if (!STARTING_PIECES[sq]) return;
+
+        this.activeScenario = null;
+        if (this.eliminatedSquares.has(sq)) {
+          this.eliminatedSquares.delete(sq);
+          if (this.pieceNodes[sq]) {
+            this.pieceNodes[sq].classList.remove("piece-eliminated");
+          }
+        } else {
+          this.eliminatedSquares.add(sq);
+          if (this.pieceNodes[sq]) {
+            this.pieceNodes[sq].classList.add("piece-eliminated");
+          }
+        }
+        this.updateState();
+      }
+
+      setScenario(scenario) {
+        this.activeScenario = scenario;
+        this.eliminatedSquares.clear();
+        for (const sq of scenario.white) this.eliminatedSquares.add(sq);
+        for (const sq of scenario.black) this.eliminatedSquares.add(sq);
+
+        for (const [sq, node] of Object.entries(this.pieceNodes)) {
+          node.classList.toggle("piece-eliminated", this.eliminatedSquares.has(sq));
+        }
+        this.updateState();
+      }
+
+      reset() {
+        this.activeScenario = null;
+        this.eliminatedSquares.clear();
+        for (const [sq, node] of Object.entries(this.pieceNodes)) {
+          node.classList.remove("piece-eliminated");
+        }
+        this.updateState();
+      }
+
+      loadFromFen(fen) {
+        try {
+          const squares = fenToSquares(fen);
+          this.activeScenario = null;
+          this.eliminatedSquares.clear();
+          for (const sq in STARTING_PIECES) {
+            if (squares[sq] !== STARTING_PIECES[sq]) {
+              this.eliminatedSquares.add(sq);
+            }
+          }
+          for (const [sq, node] of Object.entries(this.pieceNodes)) {
+            node.classList.toggle("piece-eliminated", this.eliminatedSquares.has(sq));
+          }
+          this.updateState();
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      updateState() {
+        let whiteLost = 0;
+        let blackLost = 0;
+        for (const sq of this.eliminatedSquares) {
+          const p = STARTING_PIECES[sq];
+          if (!p) continue;
+          const val = PIECE_VALUES[p.toLowerCase()] || 0;
+          if (p === p.toUpperCase()) whiteLost += val;
+          else blackLost += val;
+        }
+
+        if (whiteLost === blackLost) {
+          this.badgeEl.textContent = t("oddsDiffEqual");
+          this.badgeEl.style.background = "rgba(110, 20, 35, 0.12)";
+          this.badgeEl.style.color = "var(--accent)";
+        } else if (whiteLost > blackLost) {
+          const diff = whiteLost - blackLost;
+          this.badgeEl.textContent = t("oddsDiffBlack")(diff);
+          this.badgeEl.style.background = "rgba(36, 31, 28, 0.12)";
+          this.badgeEl.style.color = "var(--ink)";
+        } else {
+          const diff = blackLost - whiteLost;
+          this.badgeEl.textContent = t("oddsDiffWhite")(diff);
+          this.badgeEl.style.background = "rgba(110, 20, 35, 0.12)";
+          this.badgeEl.style.color = "var(--accent)";
+        }
+
+        this.pointsEl.textContent = t("oddsWhitePoints")(whiteLost) + " | " + t("oddsBlackPoints")(blackLost);
+
+        if (this.activeScenario) {
+          this.titleEl.textContent = lang === "tr" ? this.activeScenario.name_tr : this.activeScenario.name_en;
+          this.descEl.textContent = (lang === "tr" ? this.activeScenario.desc_tr : this.activeScenario.desc_en) +
+            " (Eval: " + this.activeScenario.eval + ")";
+        } else if (this.eliminatedSquares.size === 0) {
+          this.titleEl.textContent = t("oddsStandardTitle");
+          this.descEl.textContent = t("oddsStandardDesc");
+        } else {
+          this.titleEl.textContent = t("oddsCustomTitle");
+          this.descEl.textContent = t("oddsCustomDesc");
+        }
+
+        this.currentFen = generateOddsFen(this.eliminatedSquares);
+
+        this.gameBoxEl.replaceChildren(buildGameSection({ fen: this.currentFen }));
+
+        const shareUrl = window.location.origin + "/?mode=odds&fen=" + encodeURIComponent(this.currentFen);
+        this.actionsEl.replaceChildren(
+          makeCopyButton(t("sharePosition"), shareUrl, "btn-share", t("shareCopied")),
+          makeCopyButton(t("copyFen"), this.currentFen),
+          makeLink(t("analyzeOnLichess"), "https://lichess.org/analysis/" + this.currentFen.replace(/ /g, "_"))
+        );
+
+        if (currentTab === "odds") {
+          const url = new URL(window.location.href);
+          url.searchParams.set("mode", "odds");
+          url.searchParams.set("fen", this.currentFen);
+          url.searchParams.delete("id");
+          window.history.replaceState({ mode: "odds", fen: this.currentFen }, "", url.pathname + url.search);
+        }
+      }
+
+      updateLanguage() {
+        this.updateState();
+      }
+    }
+
+    let currentTab = (INITIAL_MODE === "odds" || INITIAL_FEN) ? "odds" : "openings";
+    const tabBtnOpenings = document.getElementById("tab-btn-openings");
+    const tabBtnOdds = document.getElementById("tab-btn-odds");
+    const sectionOpenings = document.getElementById("section-openings");
+    const sectionOdds = document.getElementById("section-odds");
+
+    let oddsController = null;
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+      const isOdds = tabName === "odds";
+      tabBtnOpenings.classList.toggle("active", !isOdds);
+      tabBtnOpenings.setAttribute("aria-selected", String(!isOdds));
+      tabBtnOdds.classList.toggle("active", isOdds);
+      tabBtnOdds.setAttribute("aria-selected", String(isOdds));
+
+      sectionOpenings.style.display = isOdds ? "none" : "";
+      sectionOdds.style.display = isOdds ? "" : "none";
+
+      const url = new URL(window.location.href);
+      if (isOdds) {
+        url.searchParams.set("mode", "odds");
+        url.searchParams.delete("id");
+        if (oddsController && oddsController.currentFen) {
+          url.searchParams.set("fen", oddsController.currentFen);
+        }
+        document.title = (lang === "tr" ? "Taş Eksiltme Modu — go2mid.com" : "Piece Odds Mode — go2mid.com");
+      } else {
+        url.searchParams.delete("mode");
+        url.searchParams.delete("fen");
+        if (currentOpening) {
+          url.searchParams.set("id", currentOpening.id);
+          document.title = currentOpening.name + " — go2mid.com";
+        } else {
+          document.title = (lang === "tr" ? "go2mid.com — rastgele satranç açılışları" : "go2mid.com — random chess openings");
+        }
+      }
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+
+    tabBtnOpenings.addEventListener("click", () => switchTab("openings"));
+    tabBtnOdds.addEventListener("click", () => switchTab("odds"));
+
+    const btnBalancedRandom = document.getElementById("btn-balanced-random");
+    const btnResetOdds = document.getElementById("btn-reset-odds");
+
+    btnBalancedRandom.addEventListener("click", () => {
+      if (!oddsController) return;
+      const scenario = BALANCED_ODDS_POOL[Math.floor(Math.random() * BALANCED_ODDS_POOL.length)];
+      oddsController.setScenario(scenario);
+    });
+
+    btnResetOdds.addEventListener("click", () => {
+      if (!oddsController) return;
+      oddsController.reset();
+    });
+
     // Re-applies every static and dynamic piece of text for the active language, without losing state
     function applyLanguage() {
       document.documentElement.lang = lang;
@@ -1530,9 +2232,19 @@
       document.getElementById("hint-random").textContent = t("hintRandom");
       generateBtn.textContent = t("generate");
 
-      updateAdvUI(null); // refreshes the live "Any advantage" / "X to Y" readout
+      document.getElementById("label-tab-openings").textContent = t("tabOpenings");
+      document.getElementById("label-tab-odds").textContent = t("tabOdds");
+      document.getElementById("odds-intro").textContent = t("oddsIntro");
+      document.getElementById("label-balanced-random").textContent = t("btnBalancedRandom");
+      document.getElementById("label-reset-odds").textContent = t("btnResetOdds");
+      document.getElementById("odds-board-title").textContent = t("oddsBoardTitle");
+      document.getElementById("odds-board-sub").textContent = t("oddsBoardSub");
 
-      if (!hasResult) {
+      updateAdvUI(null);
+
+      if (currentTab === "odds") {
+        document.title = (lang === "tr" ? "Taş Eksiltme Modu — go2mid.com" : "Piece Odds Mode — go2mid.com");
+      } else if (!hasResult) {
         document.getElementById("empty-title").textContent = t("emptyTitle");
         document.getElementById("empty-text").textContent = t("emptyText");
         document.title = (lang === "tr" ? "go2mid.com — rastgele satranç açılışları" : "go2mid.com — random chess openings");
@@ -1543,8 +2255,11 @@
       } else if (lastErrorKeys) {
         showMessage(t(lastErrorKeys[0]), t(lastErrorKeys[1]));
       }
-    }
 
+      if (oddsController) {
+        oddsController.updateLanguage();
+      }
+    }
 
     function setLang(next) {
       lang = next;
@@ -1557,7 +2272,19 @@
 
     window.addEventListener("popstate", async () => {
       const params = new URLSearchParams(window.location.search);
+      const mode = params.get("mode");
+      const fen = params.get("fen");
       const id = params.get("id");
+
+      if (mode === "odds" || fen) {
+        switchTab("odds");
+        if (fen && oddsController) {
+          oddsController.loadFromFen(fen);
+        }
+        return;
+      }
+
+      switchTab("openings");
       if (id) {
         if (INITIAL_OPENING && String(INITIAL_OPENING.id) === String(id)) {
           hasResult = true;
@@ -1590,6 +2317,14 @@
         showMessage(t("emptyTitle"), t("emptyText"));
       }
     });
+
+    oddsController = new OddsBoardController(document.getElementById("odds-board-container"));
+    if (INITIAL_FEN) {
+      oddsController.loadFromFen(INITIAL_FEN);
+    }
+    if (INITIAL_MODE === "odds" || INITIAL_FEN) {
+      switchTab("odds");
+    }
 
     applyLanguage();
   </script>
